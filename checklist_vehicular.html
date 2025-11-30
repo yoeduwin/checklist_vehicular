@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Checklist Vehicular - Ejecutiva Ambiental</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6a 100%);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label.required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2d5f4f;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 0.75rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: #2d5f4f;
+            color: white;
+            border-color: #2d5f4f;
+        }
+
+        .section-header {
+            background: #ecf0f1;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0 1rem 0;
+            font-weight: 600;
+            color: #2d5f4f;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-label {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .checklist-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .check-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #dfe6e9;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .check-btn:active {
+            transform: scale(0.95);
+        }
+
+        .check-btn.good {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+        }
+
+        .check-btn.bad {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+        }
+
+        .check-btn.na {
+            background: #95a5a6;
+            border-color: #95a5a6;
+            color: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2d5f4f;
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: #1f4838;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:active {
+            background: #7f8c8d;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .photo-section {
+            margin-top: 1rem;
+        }
+
+        .photo-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed #2d5f4f;
+            border-radius: 8px;
+            background: #ecf9f4;
+            color: #2d5f4f;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .photo-item {
+            position: relative;
+            padding-top: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .photo-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .signature-pad {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .signature-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2d5f4f;
+            transition: width 0.3s;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .summary-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2d5f4f;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 99;
+        }
+
+        .bottom-nav .btn {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚗 Checklist Vehicular</h1>
+        <p>Ejecutiva Ambiental</p>
+    </div>
+
+    <!-- SCREEN 1: INICIO -->
+    <div id="screen-inicio" class="screen active">
+        <div class="container">
+            <div class="card">
+                <div class="card-title">📋 Nueva Inspección</div>
+                
+                <div class="form-group">
+                    <label class="required">Vehículo</label>
+                    <select id="vehiculo" class="form-control">
+                        <option value="">Seleccionar vehículo</option>
+                        <option value="VENTO_PLATA">Vento Plata (VW 2020)</option>
+                        <option value="VENTO_CARBON">Vento Carbón (VW 2021)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Tipo de Inspección</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" name="tipo" id="tipo-salida" value="Salida">
+                            <label for="tipo-salida">🚀 Salida</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" name="tipo" id="tipo-regreso" value="Regreso">
+                            <label for="tipo-regreso">🏁 Regreso</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Conductor</label>
+                    <select id="conductor" class="form-control">
+                        <option value="">Seleccionar conductor</option>
+                        <option value="MARTIN">Martín</option>
+                        <option value="EDUARDO">Eduardo</option>
+                        <option value="JIMMY">Jimmy</option>
+                        <option value="EDUWIN">Eduwin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Kilometraje Actual</label>
+                    <input type="number" id="kilometraje" class="form-control" placeholder="Ej: 15000">
+                </div>
+
+                <div class="form-group">
+                    <label>Orden de Trabajo (Opcional)</label>
+                    <input type="text" id="orden-trabajo" class="form-control" placeholder="Ej: OT25-001">
+                </div>
+
+                <button class="btn btn-primary" onclick="iniciarInspeccion()">
+                    Iniciar Inspección →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: CHECKLIST -->
+    <div id="screen-checklist" class="screen">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="seccion-actual">Sección 1/6</div>
+
+                <!-- Sistema Eléctrico -->
+                <div id="seccion-electrico" class="seccion-checklist">
+                    <div class="section-header">⚡ SISTEMA ELÉCTRICO</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luz delantera alta</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luz delantera baja</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luces intermitentes</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luz direccional</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luz freno posterior</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Tablero/Indicadores</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Luces de reversa</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Alarma de reversa</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'na')">○</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte Externa -->
+                <div id="seccion-externa" class="seccion-checklist" style="display:none;">
+                    <div class="section-header">🚗 PARTE EXTERNA</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Espejo retrovisor izquierdo</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Espejo retrovisor derecho</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Parabrisas delantero</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Parabrisas trasero</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Llantas (presión/desgaste)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Carrocería (golpes/rayones)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Limpieza exterior</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'na')">○</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte Interna -->
+                <div id="seccion-interna" class="seccion-checklist" style="display:none;">
+                    <div class="section-header">🪑 PARTE INTERNA</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Cinturones de seguridad</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Asientos (estado)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Claxon</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Limpieza interior</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Aire acondicionado</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'na')">○</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div id="seccion-documentos" class="seccion-checklist" style="display:none;">
+                    <div class="section-header">📄 DOCUMENTOS</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Póliza de seguro</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Tarjeta de circulación</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Verificación vehicular</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'na')">○</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accesorios -->
+                <div id="seccion-accesorios" class="seccion-checklist" style="display:none;">
+                    <div class="section-header">🛠️ ACCESORIOS DE SEGURIDAD</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Gato hidráulico</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'gato', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'gato', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'gato', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Llanta de refacción</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Señales de emergencia</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'señales', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'señales', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'señales', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Botiquín de primeros auxilios</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Extintor</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'na')">○</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Líquidos -->
+                <div id="seccion-liquidos" class="seccion-checklist" style="display:none;">
+                    <div class="section-header">🔧 LÍQUIDOS Y GASOLINA</div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Líquido de frenos (indicador)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Anticongelante (indicador)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Dirección hidráulica (indicador)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Aceite de motor (indicador)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'na')">○</button>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-label">Limpia parabrisas (indicador)</div>
+                        <div class="checklist-options">
+                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'good')">✓</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'bad')">✗</button>
+                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'na')">○</button>
+                        </div>
+                    </div>
+
+                    <div class="section-header" style="margin-top: 1.5rem;">⛽ GASOLINA</div>
+                    <div class="form-group">
+                        <label>Nivel de gasolina (1/4, 1/2, 3/4, Lleno)</label>
+                        <select id="nivel-gasolina" class="form-control">
+                            <option value="">Seleccionar</option>
+                            <option value="1/4">1/4</option>
+                            <option value="1/2">1/2</option>
+                            <option value="3/4">3/4</option>
+                            <option value="Lleno">Lleno</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="btn btn-secondary" onclick="anteriorSeccion()" id="btn-anterior" disabled>
+                ← Anterior
+            </button>
+            <button class="btn btn-primary" onclick="siguienteSeccion()" id="btn-siguiente">
+                Siguiente →
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: FOTOS Y FIRMA -->
+    <div id="screen-fotos" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="card-title">📸 Evidencia Fotográfica</div>
+                
+                <div id="alert-fotos" style="display:none;" class="alert alert-warning">
+                    <strong>⚠️ Atención:</strong> Se detectaron <span id="count-malos">0</span> items en mal estado. 
+                    Por favor toma fotos de los daños.
+                </div>
+
+                <div class="photo-section">
+                    <input type="file" id="photo-input" accept="image/*" capture="environment" multiple onchange="handlePhotos(event)">
+                    <button class="photo-btn" onclick="document.getElementById('photo-input').click()">
+                        📷 Tomar Foto
+                    </button>
+                    <div class="photo-preview" id="photo-preview"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💬 Observaciones</div>
+                <div class="form-group">
+                    <textarea id="observaciones" class="form-control" rows="4" placeholder="Escribe aquí cualquier comentario adicional..."></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✍️ Firma del Conductor</div>
+                <canvas id="signature-pad" class="signature-pad"></canvas>
+                <div class="signature-controls">
+                    <button class="btn btn-secondary" onclick="limpiarFirma()">🗑️ Limpiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="btn btn-secondary" onclick="volverChecklist()">
+                ← Volver
+            </button>
+            <button class="btn btn-primary" onclick="irResumen()">
+                Ver Resumen →
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: RESUMEN -->
+    <div id="screen-resumen" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="card-title">📊 Resumen de Inspección</div>
+                
+                <div class="summary-item">
+                    <div class="summary-label">Vehículo</div>
+                    <div class="summary-value" id="resumen-vehiculo">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Tipo</div>
+                    <div class="summary-value" id="resumen-tipo">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Conductor</div>
+                    <div class="summary-value" id="resumen-conductor">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Kilometraje</div>
+                    <div class="summary-value" id="resumen-km">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Items Buenos ✅</div>
+                    <div class="summary-value" id="resumen-buenos" style="color: #27ae60;">0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Items Malos ❌</div>
+                    <div class="summary-value" id="resumen-malos" style="color: #e74c3c;">0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Items N/A ⚪</div>
+                    <div class="summary-value" id="resumen-na" style="color: #95a5a6;">0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fotos Adjuntas</div>
+                    <div class="summary-value" id="resumen-fotos">0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Firma</div>
+                    <div class="summary-value" id="resumen-firma">❌ Sin firma</div>
+                </div>
+            </div>
+
+            <div id="alert-error" style="display:none;" class="alert alert-danger">
+                <strong>⚠️ Error:</strong> <span id="error-mensaje"></span>
+            </div>
+
+            <button class="btn btn-primary" onclick="enviarInspeccion()" id="btn-enviar">
+                ✅ Enviar Inspección
+            </button>
+            <button class="btn btn-secondary" onclick="volverFotos()">
+                ← Volver a Editar
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 5: ENVIANDO -->
+    <div id="screen-loading" class="loading">
+        <div class="spinner"></div>
+        <p>Enviando inspección...</p>
+    </div>
+
+    <!-- SCREEN 6: ÉXITO -->
+    <div id="screen-exito" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="alert alert-success">
+                    <h2 style="margin-bottom: 1rem;">✅ ¡Inspección Enviada!</h2>
+                    <p>La inspección se guardó correctamente en el sistema.</p>
+                    <p style="margin-top: 1rem;"><strong>ID:</strong> <span id="id-inspeccion">-</span></p>
+                </div>
+                
+                <button class="btn btn-primary" onclick="nuevaInspeccion()">
+                    🔄 Nueva Inspección
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        const appState = {
+            seccionActual: 0,
+            secciones: ['electrico', 'externa', 'interna', 'documentos', 'accesorios', 'liquidos'],
+            checklist: {},
+            fotos: [],
+            firmaData: null
+        };
+
+        // Signature Pad
+        let canvas, ctx, isDrawing = false;
+
+        // Inicializar cuando cargue la página
+        document.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('signature-pad');
+            ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        });
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            
+            if (e.type === 'touchstart') {
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            } else if (e.type === 'touchmove' && isDrawing) {
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                ctx.stroke();
+            }
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function limpiarFirma() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            appState.firmaData = null;
+        }
+
+        function setCheck(btn, item, status) {
+            const container = btn.parentElement;
+            container.querySelectorAll('.check-btn').forEach(b => {
+                b.classList.remove('good', 'bad', 'na');
+            });
+            btn.classList.add(status);
+            appState.checklist[item] = status;
+            actualizarProgreso();
+        }
+
+        function actualizarProgreso() {
+            const total = Object.keys(appState.checklist).length;
+            const progress = (appState.seccionActual / appState.secciones.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function iniciarInspeccion() {
+            const vehiculo = document.getElementById('vehiculo').value;
+            const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
+            const conductor = document.getElementById('conductor').value;
+            const km = document.getElementById('kilometraje').value;
+
+            if (!vehiculo || !tipo || !conductor || !km) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+
+            appState.vehiculo = vehiculo;
+            appState.tipo = tipo;
+            appState.conductor = conductor;
+            appState.kilometraje = km;
+            appState.ordenTrabajo = document.getElementById('orden-trabajo').value;
+
+            cambiarPantalla('screen-inicio', 'screen-checklist');
+        }
+
+        function siguienteSeccion() {
+            if (appState.seccionActual < appState.secciones.length - 1) {
+                document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'none';
+                appState.seccionActual++;
+                document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'block';
+                document.getElementById('seccion-actual').textContent = `Sección ${appState.seccionActual + 1}/${appState.secciones.length}`;
+                document.getElementById('btn-anterior').disabled = false;
+                actualizarProgreso();
+            } else {
+                // Última sección, ir a fotos
+                cambiarPantalla('screen-checklist', 'screen-fotos');
+                verificarItemsMalos();
+            }
+
+            if (appState.seccionActual === appState.secciones.length - 1) {
+                document.getElementById('btn-siguiente').textContent = 'Continuar →';
+            }
+        }
+
+        function anteriorSeccion() {
+            if (appState.seccionActual > 0) {
+                document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'none';
+                appState.seccionActual--;
+                document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'block';
+                document.getElementById('seccion-actual').textContent = `Sección ${appState.seccionActual + 1}/${appState.secciones.length}`;
+                document.getElementById('btn-siguiente').textContent = 'Siguiente →';
+                actualizarProgreso();
+            }
+
+            if (appState.seccionActual === 0) {
+                document.getElementById('btn-anterior').disabled = true;
+            }
+        }
+
+        function verificarItemsMalos() {
+            const malos = Object.values(appState.checklist).filter(v => v === 'bad').length;
+            if (malos > 0) {
+                document.getElementById('alert-fotos').style.display = 'block';
+                document.getElementById('count-malos').textContent = malos;
+            }
+        }
+
+        function handlePhotos(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    appState.fotos.push(e.target.result);
+                    mostrarFotos();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function mostrarFotos() {
+            const preview = document.getElementById('photo-preview');
+            preview.innerHTML = '';
+            appState.fotos.forEach((foto, index) => {
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.innerHTML = `
+                    <img src="${foto}" alt="Foto ${index + 1}">
+                    <button class="photo-remove" onclick="eliminarFoto(${index})">×</button>
+                `;
+                preview.appendChild(div);
+            });
+        }
+
+        function eliminarFoto(index) {
+            appState.fotos.splice(index, 1);
+            mostrarFotos();
+        }
+
+        function volverChecklist() {
+            cambiarPantalla('screen-fotos', 'screen-checklist');
+        }
+
+        function irResumen() {
+            // Guardar firma
+            appState.firmaData = canvas.toDataURL();
+
+            // Calcular resumen
+            const buenos = Object.values(appState.checklist).filter(v => v === 'good').length;
+            const malos = Object.values(appState.checklist).filter(v => v === 'bad').length;
+            const na = Object.values(appState.checklist).filter(v => v === 'na').length;
+
+            document.getElementById('resumen-vehiculo').textContent = document.querySelector('#vehiculo option:checked').textContent;
+            document.getElementById('resumen-tipo').textContent = appState.tipo;
+            document.getElementById('resumen-conductor').textContent = document.querySelector('#conductor option:checked').textContent;
+            document.getElementById('resumen-km').textContent = appState.kilometraje + ' km';
+            document.getElementById('resumen-buenos').textContent = buenos;
+            document.getElementById('resumen-malos').textContent = malos;
+            document.getElementById('resumen-na').textContent = na;
+            document.getElementById('resumen-fotos').textContent = appState.fotos.length;
+            
+            const tieneFirma = !isCanvasBlank(canvas);
+            document.getElementById('resumen-firma').textContent = tieneFirma ? '✅ Firmado' : '❌ Sin firma';
+            document.getElementById('resumen-firma').style.color = tieneFirma ? '#27ae60' : '#e74c3c';
+
+            cambiarPantalla('screen-fotos', 'screen-resumen');
+        }
+
+        function isCanvasBlank(canvas) {
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            return canvas.toDataURL() === blank.toDataURL();
+        }
+
+        function volverFotos() {
+            cambiarPantalla('screen-resumen', 'screen-fotos');
+        }
+
+        async function enviarInspeccion() {
+            // Validar firma
+            if (isCanvasBlank(canvas)) {
+                document.getElementById('alert-error').style.display = 'block';
+                document.getElementById('error-mensaje').textContent = 'Debes firmar antes de enviar';
+                return;
+            }
+
+            document.getElementById('btn-enviar').disabled = true;
+            document.getElementById('alert-error').style.display = 'none';
+            document.getElementById('screen-loading').classList.add('active');
+
+            // Preparar datos
+            const datos = {
+                vehiculo: appState.vehiculo,
+                tipo: appState.tipo,
+                conductor: appState.conductor,
+                kilometraje: appState.kilometraje,
+                ordenTrabajo: appState.ordenTrabajo,
+                fecha: new Date().toISOString(),
+                checklist: appState.checklist,
+                nivelGasolina: document.getElementById('nivel-gasolina').value,
+                observaciones: document.getElementById('observaciones').value,
+                fotos: appState.fotos,
+                firma: appState.firmaData
+            };
+
+            // Enviar a Google Apps Script
+            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSgEhIn6AA6O__3WO7_k4KFu0verkyVLtV13f_MmzkxaEBYmCHwtUgZTPm9qNTTsj2DQ/exec';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                // Con mode: 'no-cors' no podemos leer la respuesta, pero sabemos que se envió
+                // Esperamos 3 segundos para que el script procese
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                document.getElementById('screen-loading').classList.remove('active');
+                cambiarPantalla('screen-resumen', 'screen-exito');
+                document.getElementById('id-inspeccion').textContent = 'INS-' + Date.now();
+                
+                console.log('✅ Inspección enviada correctamente');
+                
+            } catch (error) {
+                console.error('Error al enviar:', error);
+                document.getElementById('screen-loading').classList.remove('active');
+                document.getElementById('alert-error').style.display = 'block';
+                document.getElementById('error-mensaje').textContent = 'Error al enviar. Por favor intenta de nuevo.';
+                document.getElementById('btn-enviar').disabled = false;
+            }
+        }
+
+        function nuevaInspeccion() {
+            location.reload();
+        }
+
+        function cambiarPantalla(actual, nueva) {
+            document.getElementById(actual).classList.remove('active');
+            document.getElementById(nueva).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
