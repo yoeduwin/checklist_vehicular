@@ -292,6 +292,16 @@
             background: #7f8c8d;
         }
 
+        .btn-success {
+            background: #27ae60;
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .btn-success:active {
+            background: #1e8449;
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -495,6 +505,12 @@
             color: #95a5a6;
             font-size: 0.85rem;
             margin-top: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
     </style>
 </head>
@@ -1320,12 +1336,14 @@
                 <strong>⚠️ Error:</strong> <span id="error-mensaje"></span>
             </div>
 
-            <button class="btn btn-primary" onclick="enviarInspeccion()" id="btn-enviar">
-                ✅ Enviar Inspección
-            </button>
-            <button class="btn btn-secondary" onclick="volverFotos()">
-                ← Volver a Editar
-            </button>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="enviarInspeccion()" id="btn-enviar">
+                    ✅ Enviar Inspección
+                </button>
+                <button class="btn btn-secondary" onclick="volverFotos()">
+                    ← Volver a Editar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1333,7 +1351,7 @@
     <div id="screen-loading" class="loading">
         <div class="spinner"></div>
         <p>Enviando inspección...</p>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Esto puede tardar unos segundos</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Guardando en Google Sheets...</p>
     </div>
 
     <!-- SCREEN 6: ÉXITO -->
@@ -1341,19 +1359,25 @@
         <div class="container">
             <div class="card">
                 <div class="alert alert-success">
-                    <h2 style="margin-bottom: 1rem;">✅ ¡Inspección Enviada!</h2>
-                    <p>La inspección se guardó correctamente en el sistema.</p>
+                    <h2 style="margin-bottom: 1rem;">✅ ¡Inspección Guardada!</h2>
+                    <p>Los datos se guardaron correctamente en Google Sheets.</p>
                     <p style="margin-top: 1rem;"><strong>ID:</strong> <span id="id-inspeccion">-</span></p>
                 </div>
-                
-                <button class="btn btn-primary" onclick="nuevaInspeccion()">
-                    🔄 Nueva Inspección
-                </button>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="abrirPDF()" id="btn-abrir-pdf">
+                        📄 Abrir PDF
+                    </button>
+                    <button class="btn btn-primary" onclick="nuevaInspeccion()">
+                        🔄 Nueva Inspección
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         // Estado global
         const appState = {
@@ -1362,8 +1386,8 @@
             checklist: {},
             observaciones: {},
             fotos: [],
-            fotosPorItem: {},
-            firmaData: null
+            firmaData: null,
+            pdfBlob: null
         };
 
         // Signature Pad
@@ -1396,7 +1420,6 @@
             btn.classList.add(status);
             appState.checklist[item] = status;
 
-            // Mostrar/ocultar campo de observación y solicitud de foto
             const obsField = document.getElementById('obs-' + item);
             const photoReq = document.getElementById('photo-' + item);
             
@@ -1406,7 +1429,6 @@
             } else {
                 obsField.classList.remove('active');
                 photoReq.classList.remove('active');
-                // Limpiar observación si se cambió a bueno
                 const textarea = obsField.querySelector('textarea');
                 if (textarea) textarea.value = '';
             }
@@ -1441,7 +1463,6 @@
 
         function siguienteSeccion() {
             if (appState.seccionActual < appState.secciones.length - 1) {
-                // Guardar observaciones de la sección actual
                 guardarObservacionesSeccion();
                 
                 document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'none';
@@ -1451,7 +1472,6 @@
                 document.getElementById('btn-anterior').disabled = false;
                 actualizarProgreso();
             } else {
-                // Última sección, guardar observaciones y ir a fotos
                 guardarObservacionesSeccion();
                 cambiarPantalla('screen-checklist', 'screen-fotos');
                 verificarItemsMalos();
@@ -1480,7 +1500,6 @@
         }
 
         function guardarObservacionesSeccion() {
-            // Guardar todas las observaciones de items marcados como malos
             const seccion = appState.secciones[appState.seccionActual];
             const seccionDiv = document.getElementById('seccion-' + seccion);
             const textareas = seccionDiv.querySelectorAll('.observation-field.active textarea');
@@ -1541,12 +1560,10 @@
         }
 
         function irResumen() {
-            // Guardar firma
             if (!signaturePad.isEmpty()) {
                 appState.firmaData = signaturePad.toDataURL();
             }
 
-            // Calcular resumen
             const buenos = Object.values(appState.checklist).filter(v => v === 'good').length;
             const malos = Object.values(appState.checklist).filter(v => v === 'bad').length;
             const na = Object.values(appState.checklist).filter(v => v === 'na').length;
@@ -1572,7 +1589,6 @@
         }
 
         async function enviarInspeccion() {
-            // Validar firma
             if (signaturePad.isEmpty()) {
                 document.getElementById('alert-error').style.display = 'block';
                 document.getElementById('error-mensaje').textContent = 'Debes firmar antes de enviar';
@@ -1583,7 +1599,10 @@
             document.getElementById('alert-error').style.display = 'none';
             document.getElementById('screen-loading').classList.add('active');
 
-            // Preparar datos
+            // Generar PDF
+            await generarPDF();
+
+            // Preparar datos para Google Sheets
             const datos = {
                 vehiculo: appState.vehiculo,
                 tipo: appState.tipo,
@@ -1599,11 +1618,10 @@
                 firma: appState.firmaData
             };
 
-            // Enviar a Google Apps Script
             const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSgEhIn6AA6O__3WO7_k4KFu0verkyVLtV13f_MmzkxaEBYmCHwtUgZTPm9qNTTsj2DQ/exec';
 
             try {
-                const response = await fetch(APPS_SCRIPT_URL, {
+                await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
@@ -1612,21 +1630,166 @@
                     body: JSON.stringify(datos)
                 });
 
-                // Con mode: 'no-cors' no podemos leer la respuesta, pero sabemos que se envió
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 document.getElementById('screen-loading').classList.remove('active');
                 cambiarPantalla('screen-resumen', 'screen-exito');
                 document.getElementById('id-inspeccion').textContent = 'INS-' + Date.now();
                 
-                console.log('✅ Inspección enviada correctamente');
-                
             } catch (error) {
                 console.error('Error al enviar:', error);
                 document.getElementById('screen-loading').classList.remove('active');
                 document.getElementById('alert-error').style.display = 'block';
-                document.getElementById('error-mensaje').textContent = 'Error al enviar. Por favor intenta de nuevo.';
+                document.getElementById('error-mensaje').textContent = 'Error al enviar. Intenta de nuevo.';
                 document.getElementById('btn-enviar').disabled = false;
+            }
+        }
+
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let yPos = 20;
+
+            // Header
+            doc.setFontSize(18);
+            doc.setTextColor(45, 95, 79);
+            doc.text('INSPECCIÓN VEHICULAR', 105, yPos, { align: 'center' });
+            
+            yPos += 10;
+            doc.setFontSize(12);
+            doc.text('Ejecutiva Ambiental', 105, yPos, { align: 'center' });
+            
+            yPos += 15;
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+
+            // Información general
+            doc.text(`Vehículo: ${document.querySelector('#vehiculo option:checked').textContent}`, 20, yPos);
+            yPos += 7;
+            doc.text(`Tipo: ${appState.tipo}`, 20, yPos);
+            yPos += 7;
+            doc.text(`Conductor: ${document.querySelector('#conductor option:checked').textContent}`, 20, yPos);
+            yPos += 7;
+            doc.text(`Kilometraje: ${appState.kilometraje} km`, 20, yPos);
+            yPos += 7;
+            doc.text(`Fecha: ${new Date().toLocaleString('es-MX')}`, 20, yPos);
+            yPos += 10;
+
+            // Checklist
+            doc.setFontSize(12);
+            doc.setTextColor(45, 95, 79);
+            doc.text('Resultados del Checklist:', 20, yPos);
+            yPos += 8;
+
+            doc.setFontSize(9);
+            doc.setTextColor(0, 0, 0);
+
+            const itemLabels = {
+                'luz_alta': 'Luz delantera alta',
+                'luz_baja': 'Luz delantera baja',
+                'luces_intermitentes': 'Luces intermitentes',
+                'luz_direccional': 'Luz direccional',
+                'luz_freno': 'Luz freno posterior',
+                'tablero': 'Tablero/Indicadores',
+                'luz_reversa': 'Luces de reversa',
+                'alarma_reversa': 'Alarma de reversa',
+                'espejo_izq': 'Espejo retrovisor izquierdo',
+                'espejo_der': 'Espejo retrovisor derecho',
+                'parabrisas_del': 'Parabrisas delantero',
+                'parabrisas_tras': 'Parabrisas trasero',
+                'llantas': 'Llantas',
+                'carroceria': 'Carrocería',
+                'limpieza_ext': 'Limpieza exterior',
+                'cinturones': 'Cinturones de seguridad',
+                'asientos': 'Asientos',
+                'claxon': 'Claxon',
+                'limpieza_int': 'Limpieza interior',
+                'aire_ac': 'Aire acondicionado',
+                'seguro': 'Póliza de seguro',
+                'circulacion': 'Tarjeta de circulación',
+                'verificacion': 'Verificación vehicular',
+                'gato': 'Gato hidráulico',
+                'llanta_ref': 'Llanta de refacción',
+                'señales': 'Señales de emergencia',
+                'botiquin': 'Botiquín',
+                'extintor': 'Extintor',
+                'liq_frenos': 'Líquido de frenos',
+                'anticongelante': 'Anticongelante',
+                'liq_direccion': 'Dirección hidráulica',
+                'aceite_motor': 'Aceite de motor',
+                'liq_limpia': 'Limpia parabrisas'
+            };
+
+            for (const [item, status] of Object.entries(appState.checklist)) {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+
+                const statusIcon = status === 'good' ? '✓' : status === 'bad' ? '✗' : '○';
+                const statusColor = status === 'good' ? [39, 174, 96] : status === 'bad' ? [231, 76, 60] : [149, 165, 166];
+                
+                doc.setTextColor(...statusColor);
+                doc.text(statusIcon, 20, yPos);
+                doc.setTextColor(0, 0, 0);
+                doc.text(itemLabels[item] || item, 30, yPos);
+
+                if (appState.observaciones[item]) {
+                    yPos += 5;
+                    doc.setFontSize(8);
+                    doc.setTextColor(133, 100, 4);
+                    const lines = doc.splitTextToSize(`  → ${appState.observaciones[item]}`, 170);
+                    doc.text(lines, 30, yPos);
+                    yPos += (lines.length * 4);
+                    doc.setFontSize(9);
+                    doc.setTextColor(0, 0, 0);
+                }
+
+                yPos += 6;
+            }
+
+            // Observaciones generales
+            const obsGenerales = document.getElementById('observaciones').value;
+            if (obsGenerales) {
+                if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                yPos += 5;
+                doc.setFontSize(10);
+                doc.setTextColor(45, 95, 79);
+                doc.text('Observaciones Generales:', 20, yPos);
+                yPos += 6;
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+                const obsLines = doc.splitTextToSize(obsGenerales, 170);
+                doc.text(obsLines, 20, yPos);
+                yPos += (obsLines.length * 5);
+            }
+
+            // Firma
+            if (appState.firmaData) {
+                if (yPos > 230) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                yPos += 10;
+                doc.setFontSize(10);
+                doc.setTextColor(45, 95, 79);
+                doc.text('Firma del Conductor:', 20, yPos);
+                yPos += 5;
+                doc.addImage(appState.firmaData, 'PNG', 20, yPos, 60, 20);
+            }
+
+            // Guardar PDF como blob
+            appState.pdfBlob = doc.output('blob');
+        }
+
+        function abrirPDF() {
+            if (appState.pdfBlob) {
+                const pdfUrl = URL.createObjectURL(appState.pdfBlob);
+                window.open(pdfUrl, '_blank');
             }
         }
 
