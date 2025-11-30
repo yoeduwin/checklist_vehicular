@@ -154,10 +154,7 @@
         }
 
         .checklist-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
+            padding: 1rem 0;
             border-bottom: 1px solid #ecf0f1;
         }
 
@@ -165,9 +162,17 @@
             border-bottom: none;
         }
 
+        .checklist-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
         .checklist-label {
             flex: 1;
             font-size: 0.95rem;
+            font-weight: 500;
         }
 
         .checklist-options {
@@ -176,17 +181,18 @@
         }
 
         .check-btn {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border: 2px solid #dfe6e9;
-            border-radius: 50%;
+            border-radius: 8px;
             background: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             transition: all 0.3s;
+            flex-shrink: 0;
         }
 
         .check-btn:active {
@@ -209,6 +215,51 @@
             background: #95a5a6;
             border-color: #95a5a6;
             color: white;
+        }
+
+        .observation-field {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .observation-field.active {
+            display: block;
+        }
+
+        .observation-field textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .observation-field label {
+            display: block;
+            font-size: 0.85rem;
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .photo-request {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #fff3cd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #856404;
+            display: none;
+        }
+
+        .photo-request.active {
+            display: block;
         }
 
         .btn {
@@ -289,6 +340,18 @@
             object-fit: cover;
         }
 
+        .photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.25rem;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
         .photo-remove {
             position: absolute;
             top: 4px;
@@ -306,14 +369,18 @@
             font-size: 0.8rem;
         }
 
+        .signature-container {
+            margin-top: 1rem;
+        }
+
         .signature-pad {
             width: 100%;
             height: 200px;
-            border: 2px solid #dfe6e9;
+            border: 2px solid #2d5f4f;
             border-radius: 8px;
             background: white;
-            cursor: crosshair;
             touch-action: none;
+            cursor: crosshair;
         }
 
         .signature-controls {
@@ -422,6 +489,13 @@
         .bottom-nav .btn {
             flex: 1;
         }
+
+        .signature-hint {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -500,68 +574,148 @@
                 <!-- Sistema Eléctrico -->
                 <div id="seccion-electrico" class="seccion-checklist">
                     <div class="section-header">⚡ SISTEMA ELÉCTRICO</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Luz delantera alta</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luz delantera alta</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_alta', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luz_alta">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No enciende lado derecho"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luz_alta">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Luz delantera baja</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luz delantera baja</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_baja', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luz_baja">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Fundida lado izquierdo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luz_baja">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Luces intermitentes</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luces intermitentes</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luces_intermitentes', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luces_intermitentes">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No funciona derecha trasera"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luces_intermitentes">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Luz direccional</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luz direccional</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_direccional', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luz_direccional">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Parpadea muy rápido"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luz_direccional">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Luz freno posterior</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luz freno posterior</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_freno', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luz_freno">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Rota izquierda"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luz_freno">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Tablero/Indicadores</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'tablero', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Tablero/Indicadores</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'tablero', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'tablero', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'tablero', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-tablero">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Luz de check engine encendida"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-tablero">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Luces de reversa</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Luces de reversa</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'luz_reversa', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-luz_reversa">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No enciende"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-luz_reversa">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Alarma de reversa</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Alarma de reversa</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'alarma_reversa', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-alarma_reversa">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No suena"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-alarma_reversa">
+                            📷 Se requiere foto de este daño
                         </div>
                     </div>
                 </div>
@@ -569,60 +723,130 @@
                 <!-- Parte Externa -->
                 <div id="seccion-externa" class="seccion-checklist" style="display:none;">
                     <div class="section-header">🚗 PARTE EXTERNA</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Espejo retrovisor izquierdo</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Espejo retrovisor izquierdo</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_izq', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-espejo_izq">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Rajado, suelto, etc."></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-espejo_izq">
+                            📷 Se requiere foto del espejo dañado
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Espejo retrovisor derecho</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Espejo retrovisor derecho</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'espejo_der', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-espejo_der">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Rajado, suelto, etc."></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-espejo_der">
+                            📷 Se requiere foto del espejo dañado
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Parabrisas delantero</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Parabrisas delantero</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_del', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-parabrisas_del">
+                            <label>¿Qué daño tiene? ¿Dónde está ubicado?</label>
+                            <textarea placeholder="Ej: Estrella lado conductor superior"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-parabrisas_del">
+                            📷 Se requiere foto del daño en parabrisas
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Parabrisas trasero</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Parabrisas trasero</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'parabrisas_tras', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-parabrisas_tras">
+                            <label>¿Qué daño tiene? ¿Dónde está ubicado?</label>
+                            <textarea placeholder="Ej: Rajadura esquina izquierda"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-parabrisas_tras">
+                            📷 Se requiere foto del daño en parabrisas trasero
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Llantas (presión/desgaste)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'llantas', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Llantas (presión/desgaste)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'llantas', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'llantas', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'llantas', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-llantas">
+                            <label>¿Qué llanta tiene problema?</label>
+                            <textarea placeholder="Ej: Delantera izquierda baja presión"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-llantas">
+                            📷 Se requiere foto de la llanta con problema
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Carrocería (golpes/rayones)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'carroceria', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Carrocería (golpes/rayones)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'carroceria', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'carroceria', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'carroceria', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-carroceria">
+                            <label>¿Qué daño y dónde está ubicado?</label>
+                            <textarea placeholder="Ej: Rayón puerta trasera derecha, 20cm"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-carroceria">
+                            📷 Se requiere foto del daño en carrocería
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Limpieza exterior</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Limpieza exterior</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_ext', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-limpieza_ext">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Muy sucio, manchas, etc."></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-limpieza_ext">
+                            📷 Se requiere foto del estado exterior
                         </div>
                     </div>
                 </div>
@@ -630,44 +854,94 @@
                 <!-- Parte Interna -->
                 <div id="seccion-interna" class="seccion-checklist" style="display:none;">
                     <div class="section-header">🪑 PARTE INTERNA</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Cinturones de seguridad</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'cinturones', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Cinturones de seguridad</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'cinturones', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'cinturones', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'cinturones', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-cinturones">
+                            <label>¿Qué cinturón y qué falla?</label>
+                            <textarea placeholder="Ej: Trasero izquierdo no retrae"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-cinturones">
+                            📷 Se requiere foto del cinturón dañado
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Asientos (estado)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'asientos', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Asientos (estado)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'asientos', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'asientos', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'asientos', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-asientos">
+                            <label>¿Qué asiento y qué daño?</label>
+                            <textarea placeholder="Ej: Conductor roto tapizado"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-asientos">
+                            📷 Se requiere foto del asiento dañado
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Claxon</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'claxon', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Claxon</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'claxon', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'claxon', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'claxon', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-claxon">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No suena, suena débil"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-claxon">
+                            📷 Se requiere evidencia del problema
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Limpieza interior</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Limpieza interior</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'limpieza_int', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-limpieza_int">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Polvo acumulado, manchas"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-limpieza_int">
+                            📷 Se requiere foto del estado interior
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Aire acondicionado</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Aire acondicionado</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'aire_ac', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-aire_ac">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No enfría, hace ruido"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-aire_ac">
+                            📷 Se requiere evidencia del problema
                         </div>
                     </div>
                 </div>
@@ -675,28 +949,58 @@
                 <!-- Documentos -->
                 <div id="seccion-documentos" class="seccion-checklist" style="display:none;">
                     <div class="section-header">📄 DOCUMENTOS</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Póliza de seguro</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'seguro', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Póliza de seguro</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'seguro', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'seguro', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'seguro', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-seguro">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No está en el vehículo, vencida"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-seguro">
+                            📷 Se requiere foto de la póliza
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Tarjeta de circulación</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'circulacion', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Tarjeta de circulación</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'circulacion', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'circulacion', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'circulacion', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-circulacion">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No está en el vehículo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-circulacion">
+                            📷 Se requiere foto de la tarjeta
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Verificación vehicular</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'verificacion', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Verificación vehicular</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'verificacion', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'verificacion', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'verificacion', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-verificacion">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Vencida, no está"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-verificacion">
+                            📷 Se requiere foto de la verificación
                         </div>
                     </div>
                 </div>
@@ -704,44 +1008,94 @@
                 <!-- Accesorios -->
                 <div id="seccion-accesorios" class="seccion-checklist" style="display:none;">
                     <div class="section-header">🛠️ ACCESORIOS DE SEGURIDAD</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Gato hidráulico</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'gato', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'gato', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'gato', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Gato hidráulico</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'gato', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'gato', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'gato', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-gato">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No está, dañado"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-gato">
+                            📷 Se requiere evidencia
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Llanta de refacción</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Llanta de refacción</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'llanta_ref', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-llanta_ref">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Desinflada, no está"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-llanta_ref">
+                            📷 Se requiere foto de la llanta
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Señales de emergencia</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'señales', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'señales', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'señales', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Señales de emergencia</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'señales', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'señales', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'señales', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-señales">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No están, rotas"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-señales">
+                            📷 Se requiere evidencia
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Botiquín de primeros auxilios</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'botiquin', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Botiquín de primeros auxilios</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'botiquin', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'botiquin', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'botiquin', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-botiquin">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: No está, incompleto"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-botiquin">
+                            📷 Se requiere evidencia
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Extintor</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'extintor', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Extintor</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'extintor', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'extintor', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'extintor', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-extintor">
+                            <label>¿Qué falla específicamente?</label>
+                            <textarea placeholder="Ej: Vencido, no está"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-extintor">
+                            📷 Se requiere foto del extintor/etiqueta
                         </div>
                     </div>
                 </div>
@@ -749,50 +1103,100 @@
                 <!-- Líquidos -->
                 <div id="seccion-liquidos" class="seccion-checklist" style="display:none;">
                     <div class="section-header">🔧 LÍQUIDOS Y GASOLINA</div>
+                    
                     <div class="checklist-item">
-                        <div class="checklist-label">Líquido de frenos (indicador)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Líquido de frenos (indicador)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_frenos', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-liq_frenos">
+                            <label>¿Qué indica?</label>
+                            <textarea placeholder="Ej: Nivel bajo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-liq_frenos">
+                            📷 Se requiere foto del tablero/indicador
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Anticongelante (indicador)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Anticongelante (indicador)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'anticongelante', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-anticongelante">
+                            <label>¿Qué indica?</label>
+                            <textarea placeholder="Ej: Nivel bajo, temperatura alta"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-anticongelante">
+                            📷 Se requiere foto del tablero/indicador
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Dirección hidráulica (indicador)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Dirección hidráulica (indicador)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_direccion', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-liq_direccion">
+                            <label>¿Qué indica?</label>
+                            <textarea placeholder="Ej: Nivel bajo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-liq_direccion">
+                            📷 Se requiere foto del tablero/indicador
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Aceite de motor (indicador)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Aceite de motor (indicador)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'aceite_motor', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-aceite_motor">
+                            <label>¿Qué indica?</label>
+                            <textarea placeholder="Ej: Presión baja, nivel bajo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-aceite_motor">
+                            📷 Se requiere foto del tablero/indicador
                         </div>
                     </div>
+
                     <div class="checklist-item">
-                        <div class="checklist-label">Limpia parabrisas (indicador)</div>
-                        <div class="checklist-options">
-                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'good')">✓</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'bad')">✗</button>
-                            <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'na')">○</button>
+                        <div class="checklist-header">
+                            <div class="checklist-label">Limpia parabrisas (indicador)</div>
+                            <div class="checklist-options">
+                                <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'good')">✓</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'bad')">✗</button>
+                                <button class="check-btn" onclick="setCheck(this, 'liq_limpia', 'na')">○</button>
+                            </div>
+                        </div>
+                        <div class="observation-field" id="obs-liq_limpia">
+                            <label>¿Qué indica?</label>
+                            <textarea placeholder="Ej: Nivel bajo"></textarea>
+                        </div>
+                        <div class="photo-request" id="photo-liq_limpia">
+                            📷 Se requiere foto del tablero/indicador
                         </div>
                     </div>
 
                     <div class="section-header" style="margin-top: 1.5rem;">⛽ GASOLINA</div>
                     <div class="form-group">
-                        <label>Nivel de gasolina (1/4, 1/2, 3/4, Lleno)</label>
+                        <label>Nivel de gasolina</label>
                         <select id="nivel-gasolina" class="form-control">
                             <option value="">Seleccionar</option>
                             <option value="1/4">1/4</option>
@@ -823,30 +1227,37 @@
                 
                 <div id="alert-fotos" style="display:none;" class="alert alert-warning">
                     <strong>⚠️ Atención:</strong> Se detectaron <span id="count-malos">0</span> items en mal estado. 
-                    Por favor toma fotos de los daños.
+                    <br>Las fotos específicas ya fueron solicitadas en cada item marcado como malo.
                 </div>
 
                 <div class="photo-section">
+                    <p style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">
+                        Agrega fotos adicionales si es necesario (panorámicas, contexto general, etc.)
+                    </p>
                     <input type="file" id="photo-input" accept="image/*" capture="environment" multiple onchange="handlePhotos(event)">
                     <button class="photo-btn" onclick="document.getElementById('photo-input').click()">
-                        📷 Tomar Foto
+                        📷 Agregar Foto Adicional
                     </button>
                     <div class="photo-preview" id="photo-preview"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">💬 Observaciones</div>
+                <div class="card-title">💬 Observaciones Generales</div>
                 <div class="form-group">
-                    <textarea id="observaciones" class="form-control" rows="4" placeholder="Escribe aquí cualquier comentario adicional..."></textarea>
+                    <textarea id="observaciones" class="form-control" rows="4" placeholder="Comentarios adicionales sobre el estado general del vehículo..."></textarea>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-title">✍️ Firma del Conductor</div>
+                <p style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">
+                    Firma con tu dedo o stylus en el recuadro
+                </p>
                 <canvas id="signature-pad" class="signature-pad"></canvas>
+                <div class="signature-hint">Arrastra tu dedo para firmar</div>
                 <div class="signature-controls">
-                    <button class="btn btn-secondary" onclick="limpiarFirma()">🗑️ Limpiar</button>
+                    <button class="btn btn-secondary" onclick="limpiarFirma()" style="flex: 1;">🗑️ Limpiar Firma</button>
                 </div>
             </div>
         </div>
@@ -922,6 +1333,7 @@
     <div id="screen-loading" class="loading">
         <div class="spinner"></div>
         <p>Enviando inspección...</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Esto puede tardar unos segundos</p>
     </div>
 
     <!-- SCREEN 6: ÉXITO -->
@@ -941,72 +1353,38 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         // Estado global
         const appState = {
             seccionActual: 0,
             secciones: ['electrico', 'externa', 'interna', 'documentos', 'accesorios', 'liquidos'],
             checklist: {},
+            observaciones: {},
             fotos: [],
+            fotosPorItem: {},
             firmaData: null
         };
 
         // Signature Pad
-        let canvas, ctx, isDrawing = false;
+        let signaturePad;
 
         // Inicializar cuando cargue la página
         document.addEventListener('DOMContentLoaded', () => {
-            canvas = document.getElementById('signature-pad');
-            ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('signature-pad');
             canvas.width = canvas.offsetWidth;
             canvas.height = 200;
-
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-
-            canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouch);
-            canvas.addEventListener('touchend', stopDrawing);
+            
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
+            });
         });
 
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-        }
-
-        function handleTouch(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            
-            if (e.type === 'touchstart') {
-                isDrawing = true;
-                ctx.beginPath();
-                ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-            } else if (e.type === 'touchmove' && isDrawing) {
-                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-                ctx.stroke();
-            }
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
         function limpiarFirma() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            signaturePad.clear();
             appState.firmaData = null;
         }
 
@@ -1017,12 +1395,27 @@
             });
             btn.classList.add(status);
             appState.checklist[item] = status;
+
+            // Mostrar/ocultar campo de observación y solicitud de foto
+            const obsField = document.getElementById('obs-' + item);
+            const photoReq = document.getElementById('photo-' + item);
+            
+            if (status === 'bad') {
+                obsField.classList.add('active');
+                photoReq.classList.add('active');
+            } else {
+                obsField.classList.remove('active');
+                photoReq.classList.remove('active');
+                // Limpiar observación si se cambió a bueno
+                const textarea = obsField.querySelector('textarea');
+                if (textarea) textarea.value = '';
+            }
+
             actualizarProgreso();
         }
 
         function actualizarProgreso() {
-            const total = Object.keys(appState.checklist).length;
-            const progress = (appState.seccionActual / appState.secciones.length) * 100;
+            const progress = ((appState.seccionActual + 1) / appState.secciones.length) * 100;
             document.getElementById('progress').style.width = progress + '%';
         }
 
@@ -1048,6 +1441,9 @@
 
         function siguienteSeccion() {
             if (appState.seccionActual < appState.secciones.length - 1) {
+                // Guardar observaciones de la sección actual
+                guardarObservacionesSeccion();
+                
                 document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'none';
                 appState.seccionActual++;
                 document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'block';
@@ -1055,7 +1451,8 @@
                 document.getElementById('btn-anterior').disabled = false;
                 actualizarProgreso();
             } else {
-                // Última sección, ir a fotos
+                // Última sección, guardar observaciones y ir a fotos
+                guardarObservacionesSeccion();
                 cambiarPantalla('screen-checklist', 'screen-fotos');
                 verificarItemsMalos();
             }
@@ -1067,6 +1464,8 @@
 
         function anteriorSeccion() {
             if (appState.seccionActual > 0) {
+                guardarObservacionesSeccion();
+                
                 document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'none';
                 appState.seccionActual--;
                 document.getElementById('seccion-' + appState.secciones[appState.seccionActual]).style.display = 'block';
@@ -1078,6 +1477,20 @@
             if (appState.seccionActual === 0) {
                 document.getElementById('btn-anterior').disabled = true;
             }
+        }
+
+        function guardarObservacionesSeccion() {
+            // Guardar todas las observaciones de items marcados como malos
+            const seccion = appState.secciones[appState.seccionActual];
+            const seccionDiv = document.getElementById('seccion-' + seccion);
+            const textareas = seccionDiv.querySelectorAll('.observation-field.active textarea');
+            
+            textareas.forEach(textarea => {
+                const item = textarea.closest('.observation-field').id.replace('obs-', '');
+                if (textarea.value.trim()) {
+                    appState.observaciones[item] = textarea.value.trim();
+                }
+            });
         }
 
         function verificarItemsMalos() {
@@ -1093,7 +1506,10 @@
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    appState.fotos.push(e.target.result);
+                    appState.fotos.push({
+                        data: e.target.result,
+                        caption: 'Foto adicional'
+                    });
                     mostrarFotos();
                 };
                 reader.readAsDataURL(file);
@@ -1107,7 +1523,8 @@
                 const div = document.createElement('div');
                 div.className = 'photo-item';
                 div.innerHTML = `
-                    <img src="${foto}" alt="Foto ${index + 1}">
+                    <img src="${foto.data}" alt="Foto ${index + 1}">
+                    <div class="photo-caption">${foto.caption}</div>
                     <button class="photo-remove" onclick="eliminarFoto(${index})">×</button>
                 `;
                 preview.appendChild(div);
@@ -1125,7 +1542,9 @@
 
         function irResumen() {
             // Guardar firma
-            appState.firmaData = canvas.toDataURL();
+            if (!signaturePad.isEmpty()) {
+                appState.firmaData = signaturePad.toDataURL();
+            }
 
             // Calcular resumen
             const buenos = Object.values(appState.checklist).filter(v => v === 'good').length;
@@ -1141,18 +1560,11 @@
             document.getElementById('resumen-na').textContent = na;
             document.getElementById('resumen-fotos').textContent = appState.fotos.length;
             
-            const tieneFirma = !isCanvasBlank(canvas);
+            const tieneFirma = !signaturePad.isEmpty();
             document.getElementById('resumen-firma').textContent = tieneFirma ? '✅ Firmado' : '❌ Sin firma';
             document.getElementById('resumen-firma').style.color = tieneFirma ? '#27ae60' : '#e74c3c';
 
             cambiarPantalla('screen-fotos', 'screen-resumen');
-        }
-
-        function isCanvasBlank(canvas) {
-            const blank = document.createElement('canvas');
-            blank.width = canvas.width;
-            blank.height = canvas.height;
-            return canvas.toDataURL() === blank.toDataURL();
         }
 
         function volverFotos() {
@@ -1161,7 +1573,7 @@
 
         async function enviarInspeccion() {
             // Validar firma
-            if (isCanvasBlank(canvas)) {
+            if (signaturePad.isEmpty()) {
                 document.getElementById('alert-error').style.display = 'block';
                 document.getElementById('error-mensaje').textContent = 'Debes firmar antes de enviar';
                 return;
@@ -1180,9 +1592,10 @@
                 ordenTrabajo: appState.ordenTrabajo,
                 fecha: new Date().toISOString(),
                 checklist: appState.checklist,
+                observaciones: appState.observaciones,
                 nivelGasolina: document.getElementById('nivel-gasolina').value,
-                observaciones: document.getElementById('observaciones').value,
-                fotos: appState.fotos,
+                observacionesGenerales: document.getElementById('observaciones').value,
+                fotos: appState.fotos.map(f => f.data),
                 firma: appState.firmaData
             };
 
@@ -1200,7 +1613,6 @@
                 });
 
                 // Con mode: 'no-cors' no podemos leer la respuesta, pero sabemos que se envió
-                // Esperamos 3 segundos para que el script procese
                 await new Promise(resolve => setTimeout(resolve, 3000));
 
                 document.getElementById('screen-loading').classList.remove('active');
