@@ -512,6 +512,81 @@
             flex-direction: column;
             gap: 0.75rem;
         }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .metric-card {
+            background: #ecf9f4;
+            border: 1px solid #cfe8de;
+            border-radius: 10px;
+            padding: 0.9rem;
+        }
+
+        .metric-card h3 {
+            font-size: 0.8rem;
+            color: #4f6b60;
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 1.35rem;
+            color: #1f4838;
+            font-weight: 700;
+        }
+
+        .dashboard-list {
+            margin-top: 0.75rem;
+        }
+
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.88rem;
+        }
+
+        .dashboard-row strong {
+            color: #2d5f4f;
+        }
+
+        .empty-state {
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .dashboard-note {
+            margin-top: 0.8rem;
+            font-size: 0.82rem;
+            color: #5f6f68;
+        }
+
+        .comparison-box {
+            margin-top: 0.75rem;
+            background: #f5fbf8;
+            border: 1px solid #d3e9df;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.86rem;
+            color: #345a4c;
+        }
     </style>
 </head>
 <body>
@@ -573,7 +648,83 @@
                 <button class="btn btn-primary" onclick="iniciarInspeccion()">
                     Iniciar Inspección →
                 </button>
+
+                <button class="btn btn-secondary" onclick="abrirDashboard()">
+                    📊 Ver Dashboard Logístico
+                </button>
             </div>
+        </div>
+    </div>
+
+    <!-- SCREEN DASHBOARD -->
+    <div id="screen-dashboard" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="card-title">📊 Dashboard Logístico Vehicular</div>
+                <div class="dashboard-controls">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Periodo</label>
+                        <select id="dash-periodo" class="form-control" onchange="renderDashboard()">
+                            <option value="all">Todo el historial</option>
+                            <option value="day">Hoy</option>
+                            <option value="week">Últimos 7 días</option>
+                            <option value="month">Mes actual</option>
+                            <option value="year">Año actual</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Comparar por</label>
+                        <select id="dash-compare" class="form-control" onchange="renderDashboard()">
+                            <option value="vehiculo">Vehículo</option>
+                            <option value="conductor">Conductor</option>
+                            <option value="tipo">Tipo inspección</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <h3>Inspecciones totales</h3>
+                        <div class="metric-value" id="dash-total-inspecciones">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Vehículos activos</h3>
+                        <div class="metric-value" id="dash-vehiculos-activos">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Incidencias detectadas</h3>
+                        <div class="metric-value" id="dash-incidencias">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Cumplimiento promedio</h3>
+                        <div class="metric-value" id="dash-cumplimiento">0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Kilómetros recorridos</h3>
+                        <div class="metric-value" id="dash-km-recorridos">0 km</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Consumo promedio gasolina</h3>
+                        <div class="metric-value" id="dash-consumo-promedio">0 L/100km</div>
+                    </div>
+                </div>
+                <div class="dashboard-note" id="dash-rango-fecha">Rango: todo el historial</div>
+                <div class="comparison-box" id="dash-comparacion">Comparativa no disponible aún.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🚗 Estado por vehículo</div>
+                <div id="dashboard-vehiculos" class="dashboard-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🕒 Últimas inspecciones</div>
+                <div id="dashboard-recientes" class="dashboard-list"></div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="volverInicioDesdeDashboard()">
+                ← Volver
+            </button>
         </div>
     </div>
 
@@ -1368,6 +1519,9 @@
                     <button class="btn btn-success" onclick="abrirPDF()" id="btn-abrir-pdf">
                         📄 Abrir PDF
                     </button>
+                    <button class="btn btn-secondary" onclick="abrirDashboard()">
+                        📊 Ir al Dashboard
+                    </button>
                     <button class="btn btn-primary" onclick="nuevaInspeccion()">
                         🔄 Nueva Inspección
                     </button>
@@ -1390,6 +1544,18 @@
             pdfBlob: null
         };
 
+        const STORAGE_KEY = 'historial_inspecciones_vehiculares';
+        const TANK_CAPACITY_LITERS = {
+            VENTO_PLATA: 55,
+            VENTO_CARBON: 55
+        };
+        const FUEL_LEVEL_MAP = {
+            '1/4': 0.25,
+            '1/2': 0.5,
+            '3/4': 0.75,
+            'Lleno': 1
+        };
+
         // Signature Pad
         let signaturePad;
 
@@ -1410,6 +1576,269 @@
         function limpiarFirma() {
             signaturePad.clear();
             appState.firmaData = null;
+        }
+
+        function obtenerHistorialInspecciones() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch (error) {
+                console.error('No se pudo leer el historial local:', error);
+                return [];
+            }
+        }
+
+        function guardarInspeccionLocal() {
+            const historial = obtenerHistorialInspecciones();
+            const totalItems = Object.keys(appState.checklist).length;
+            const buenos = Object.values(appState.checklist).filter(v => v === 'good').length;
+            const malos = Object.values(appState.checklist).filter(v => v === 'bad').length;
+            const na = Object.values(appState.checklist).filter(v => v === 'na').length;
+            const cumplimiento = totalItems > 0 ? Math.round((buenos / totalItems) * 100) : 0;
+            const nivelGasolina = document.getElementById('nivel-gasolina').value || 'Sin dato';
+            const fuelFraction = FUEL_LEVEL_MAP[nivelGasolina] || null;
+            const tankLiters = TANK_CAPACITY_LITERS[appState.vehiculo] || 55;
+            const fuelLitersEstimate = fuelFraction !== null ? Number((tankLiters * fuelFraction).toFixed(2)) : null;
+
+            historial.push({
+                id: 'INS-' + Date.now(),
+                fecha: new Date().toISOString(),
+                vehiculo: appState.vehiculo,
+                tipo: appState.tipo,
+                conductor: appState.conductor,
+                kilometraje: Number(appState.kilometraje),
+                nivelGasolina,
+                fuelFraction,
+                fuelLitersEstimate,
+                tankLiters,
+                buenos,
+                malos,
+                na,
+                totalItems,
+                cumplimiento
+            });
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
+            return historial[historial.length - 1].id;
+        }
+
+        function abrirDashboard() {
+            renderDashboard();
+            const pantallaActiva = document.querySelector('.screen.active');
+            if (pantallaActiva && pantallaActiva.id !== 'screen-dashboard') {
+                cambiarPantalla(pantallaActiva.id, 'screen-dashboard');
+            }
+        }
+
+        function volverInicioDesdeDashboard() {
+            cambiarPantalla('screen-dashboard', 'screen-inicio');
+        }
+
+        function filtrarPorPeriodo(historial, periodo) {
+            const ahora = new Date();
+            const inicioDelDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+
+            if (periodo === 'day') {
+                return historial.filter(item => new Date(item.fecha) >= inicioDelDia);
+            }
+
+            if (periodo === 'week') {
+                const hace7Dias = new Date(ahora);
+                hace7Dias.setDate(hace7Dias.getDate() - 7);
+                return historial.filter(item => new Date(item.fecha) >= hace7Dias);
+            }
+
+            if (periodo === 'month') {
+                return historial.filter(item => {
+                    const fecha = new Date(item.fecha);
+                    return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
+                });
+            }
+
+            if (periodo === 'year') {
+                return historial.filter(item => new Date(item.fecha).getFullYear() === ahora.getFullYear());
+            }
+
+            return historial;
+        }
+
+        function descripcionPeriodo(periodo) {
+            const labels = {
+                all: 'todo el historial',
+                day: 'hoy',
+                week: 'últimos 7 días',
+                month: 'mes actual',
+                year: 'año actual'
+            };
+            return labels[periodo] || 'todo el historial';
+        }
+
+        function calcularKmRecorridos(historial) {
+            const porVehiculo = {};
+            historial.forEach(item => {
+                porVehiculo[item.vehiculo] = porVehiculo[item.vehiculo] || [];
+                porVehiculo[item.vehiculo].push(item);
+            });
+
+            let totalKm = 0;
+            Object.values(porVehiculo).forEach(registros => {
+                const ordenados = [...registros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                for (let i = 1; i < ordenados.length; i++) {
+                    const delta = ordenados[i].kilometraje - ordenados[i - 1].kilometraje;
+                    if (delta > 0) totalKm += delta;
+                }
+            });
+            return totalKm;
+        }
+
+        function calcularConsumoPromedio(historial) {
+            const porVehiculo = {};
+            historial.forEach(item => {
+                porVehiculo[item.vehiculo] = porVehiculo[item.vehiculo] || [];
+                porVehiculo[item.vehiculo].push(item);
+            });
+
+            let kmAcumulados = 0;
+            let litrosConsumidos = 0;
+
+            Object.values(porVehiculo).forEach(registros => {
+                const ordenados = [...registros].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                for (let i = 1; i < ordenados.length; i++) {
+                    const anterior = ordenados[i - 1];
+                    const actual = ordenados[i];
+                    const km = actual.kilometraje - anterior.kilometraje;
+                    const tieneDatosComb = anterior.fuelLitersEstimate !== null && actual.fuelLitersEstimate !== null;
+                    if (km <= 0 || !tieneDatosComb) continue;
+
+                    const litrosGastados = anterior.fuelLitersEstimate - actual.fuelLitersEstimate;
+                    if (litrosGastados > 0) {
+                        kmAcumulados += km;
+                        litrosConsumidos += litrosGastados;
+                    }
+                }
+            });
+
+            if (kmAcumulados <= 0 || litrosConsumidos <= 0) {
+                return null;
+            }
+
+            return Number(((litrosConsumidos / kmAcumulados) * 100).toFixed(2));
+        }
+
+        function renderComparacion(historial, campo) {
+            const contenedor = document.getElementById('dash-comparacion');
+            if (!historial.length) {
+                contenedor.textContent = 'Comparativa no disponible: no hay datos en el periodo seleccionado.';
+                return;
+            }
+
+            const grupos = {};
+            historial.forEach(item => {
+                const key = item[campo] || 'Sin dato';
+                if (!grupos[key]) {
+                    grupos[key] = { inspecciones: 0, malos: 0, cumplimientoTotal: 0 };
+                }
+                grupos[key].inspecciones += 1;
+                grupos[key].malos += item.malos;
+                grupos[key].cumplimientoTotal += item.cumplimiento;
+            });
+
+            const ranking = Object.entries(grupos).map(([nombre, data]) => ({
+                nombre,
+                inspecciones: data.inspecciones,
+                incidencias: data.malos,
+                cumplimientoPromedio: Math.round(data.cumplimientoTotal / data.inspecciones)
+            })).sort((a, b) => b.cumplimientoPromedio - a.cumplimientoPromedio);
+
+            const mejor = ranking[0];
+            const peor = ranking[ranking.length - 1];
+            const etiqueta = campo === 'vehiculo' ? 'vehículo' : campo === 'conductor' ? 'conductor' : 'tipo';
+
+            contenedor.innerHTML = `
+                <strong>Comparativa por ${etiqueta}:</strong><br>
+                Mejor desempeño: <strong>${mejor.nombre}</strong> (${mejor.cumplimientoPromedio}% cumplimiento, ${mejor.incidencias} incidencias).<br>
+                ${ranking.length > 1 ? `Área de mejora: <strong>${peor.nombre}</strong> (${peor.cumplimientoPromedio}% cumplimiento, ${peor.incidencias} incidencias).` : 'Aún no hay suficientes grupos para comparar tendencias.'}
+            `;
+        }
+
+        function renderDashboard() {
+            const historial = obtenerHistorialInspecciones();
+            const periodo = document.getElementById('dash-periodo')?.value || 'all';
+            const compararPor = document.getElementById('dash-compare')?.value || 'vehiculo';
+            const filtrado = filtrarPorPeriodo(historial, periodo);
+            const totalInspecciones = filtrado.length;
+            const vehiculosActivos = new Set(filtrado.map(h => h.vehiculo)).size;
+            const incidencias = filtrado.reduce((sum, h) => sum + h.malos, 0);
+            const cumplimientoPromedio = totalInspecciones > 0
+                ? Math.round(filtrado.reduce((sum, h) => sum + h.cumplimiento, 0) / totalInspecciones)
+                : 0;
+            const kmRecorridos = calcularKmRecorridos(filtrado);
+            const consumoPromedio = calcularConsumoPromedio(filtrado);
+
+            document.getElementById('dash-total-inspecciones').textContent = totalInspecciones;
+            document.getElementById('dash-vehiculos-activos').textContent = vehiculosActivos;
+            document.getElementById('dash-incidencias').textContent = incidencias;
+            document.getElementById('dash-cumplimiento').textContent = cumplimientoPromedio + '%';
+            document.getElementById('dash-km-recorridos').textContent = `${Math.round(kmRecorridos).toLocaleString('es-MX')} km`;
+            document.getElementById('dash-consumo-promedio').textContent = consumoPromedio ? `${consumoPromedio} L/100km` : 'N/D';
+            document.getElementById('dash-rango-fecha').textContent = `Rango: ${descripcionPeriodo(periodo)}`;
+
+            renderEstadoVehiculos(filtrado);
+            renderInspeccionesRecientes(filtrado);
+            renderComparacion(filtrado, compararPor);
+        }
+
+        function renderEstadoVehiculos(historial) {
+            const contenedor = document.getElementById('dashboard-vehiculos');
+            if (!historial.length) {
+                contenedor.innerHTML = '<div class="empty-state">Aún no hay inspecciones registradas.</div>';
+                return;
+            }
+
+            const vehiculos = {};
+            historial.forEach(inspeccion => {
+                if (!vehiculos[inspeccion.vehiculo] || inspeccion.fecha > vehiculos[inspeccion.vehiculo].fecha) {
+                    vehiculos[inspeccion.vehiculo] = inspeccion;
+                }
+            });
+
+            contenedor.innerHTML = Object.entries(vehiculos)
+                .map(([vehiculo, data]) => `
+                    <div class="dashboard-row">
+                        <div>
+                            <strong>${vehiculo.replace('_', ' ')}</strong><br>
+                            KM: ${data.kilometraje.toLocaleString('es-MX')} · Gasolina: ${data.nivelGasolina}
+                        </div>
+                        <div>
+                            Cumpl.: ${data.cumplimiento}%<br>
+                            Incidencias: ${data.malos}
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function renderInspeccionesRecientes(historial) {
+            const contenedor = document.getElementById('dashboard-recientes');
+            if (!historial.length) {
+                contenedor.innerHTML = '<div class="empty-state">Sin historial para mostrar.</div>';
+                return;
+            }
+
+            const recientes = [...historial]
+                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .slice(0, 5);
+
+            contenedor.innerHTML = recientes.map(item => `
+                <div class="dashboard-row">
+                    <div>
+                        <strong>${item.vehiculo.replace('_', ' ')}</strong> · ${item.tipo}<br>
+                        ${item.conductor} · ${new Date(item.fecha).toLocaleString('es-MX')}
+                    </div>
+                    <div>
+                        ✅ ${item.buenos} · ❌ ${item.malos}<br>
+                        KM ${item.kilometraje.toLocaleString('es-MX')}
+                    </div>
+                </div>
+            `).join('');
         }
 
         function setCheck(btn, item, status) {
@@ -1632,9 +2061,11 @@
 
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
+                const idInspeccion = guardarInspeccionLocal();
+
                 document.getElementById('screen-loading').classList.remove('active');
                 cambiarPantalla('screen-resumen', 'screen-exito');
-                document.getElementById('id-inspeccion').textContent = 'INS-' + Date.now();
+                document.getElementById('id-inspeccion').textContent = idInspeccion;
                 
             } catch (error) {
                 console.error('Error al enviar:', error);
